@@ -41,7 +41,7 @@ with open("data.csv", "r") as file:
 notes = [clean_data(note) for note in notes]
 
 # unigram = generate_total_ngram(notes, 1)
-# biigram = generate_total_ngram(notes, 3)
+# bigram = generate_total_ngram(notes, 3)
 trigram = [generate_N_grams(note, 3) for note in notes]
 
 
@@ -52,5 +52,9 @@ for domain, ngram in zip(domains, trigram):
     most_frequent_ngram = sorted_ngrams[0][0]
     topic_mapping[domain] = most_frequent_ngram
 
-
-print(topic_mapping)
+filed_names = ['Domain', 'Topic']
+with open('output.csv', 'w') as file:
+    writer = csv.DictWriter(file, fieldnames=filed_names)
+    writer.writeheader()
+    for domain, topic in topic_mapping.items():
+        writer.writerow({'Domain': domain, 'Topic': topic})
