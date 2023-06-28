@@ -5,13 +5,13 @@ from collections import Counter
 from nltk.corpus import stopwords
 
 
-def clean_data(text):
+def clean_text(text):
     text = text.lower()
     text = re.sub(r"[^\w\s]", "", text)
     return text
 
 
-def generate_N_grams(text, n):
+def generate_ngrams(text, n):
     words = [
         word for word in re.split(r"\s+", text.strip()) if word not in set(stopwords.words("english"))
     ]
@@ -19,11 +19,19 @@ def generate_N_grams(text, n):
     ans = [" ".join(ngram) for ngram in temp]
     return ans
 
-def get_total_ngrams(ngrams):
-    total_ngrams = []
-    for ngram in ngrams:
-        total_ngrams += ngram
-    return total_ngrams
+def filtered_ngrams(ngrams, most_frequent_ngrams):
+    return [ngram for ngram in ngrams if ngram in most_frequent_ngrams]
+
+def get_most_frequent_ngrams(notes, n):
+    all_unigrams = []
+    for note in notes:
+        unigrams = generate_ngrams(note, n)
+        all_unigrams.extend(unigrams)
+    unigram_count = Counter(all_unigrams)
+    most_frequent_ngrams = [ngram for ngram, count in unigram_count.most_common(100)]
+    return most_frequent_ngrams
+
+
 
 domains = []
 notes = []
@@ -35,38 +43,37 @@ with open("data.csv", "r") as file:
         notes.append(row["Note"])
 
 
-notes = [clean_data(note) for note in notes]
+cleaned_notes = [clean_text(note) for note in notes]
 
-unigram = [generate_N_grams(note,1) for note in notes]
-
-trigram = [generate_N_grams(note, 3) for note in notes]
-
-total_unigram = get_total_ngrams(unigram)
-
-total_unigram_count = Counter(total_unigram)
-sorted_total_unigram = sorted(total_unigram_count.items(), key=lambda x:x[1], reverse=True)
-most_frequent_unigram = sorted_total_unigram[:100]
+most_frequent_unigram = get_most_frequent_ngrams(cleaned_notes, 1)
+most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
+most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
 
 # print(most_frequent_unigram)
-
-# def updated_words(note_words):
-#     if most_freq_note_words not in most_frequent_unigram:
+# print(most_frequent_bigram)
+# print(most_frequent_trigram)
 
 topic_mapping = {}
 
-for domain, ngram_note in zip(domains, unigram):
-    for word in ngram_note:
-        if word not in most_frequent_unigram:
-            ngram_note.remove(word)
-    ngram_counts = Counter(ngram_note)
-    sorted_ngrams = sorted(ngram_counts.items(), key=lambda x: x[1], reverse=True)
-    most_frequent_ngram = sorted_ngrams[0][0]
-    most_freq_note_words = most_frequent_ngram.split()
+for domain, note in zip(domains, cleaned_notes):
+    unigram = generate_ngrams(note, 1)
+    bigram = generate_ngrams(note, 3)
+    trigram = generate_ngrams(note, 3)
+
+    filtered_unigram = filtered_ngrams(unigram, most_frequent_unigram)
+    filtered_bigram = filtered_ngrams(bigram, most_frequent_bigram)
+    filtered_trigram = filtered_ngrams(trigram, most_frequent_trigram)
+
+    all_ngrams = filtered_unigram + filtered_bigram + filtered_trigram
+    if all_ngrams:
+        ngram_counts = Counter(all_ngrams)
+        most_frequent_ngram = ngram_counts.most_common(1)[0][0]
+    else:
+        most_frequent_ngram = "Unknown"
+
     topic_mapping[domain] = most_frequent_ngram
 
-
-   
-
+  
 filed_names = ['Domain', 'Topic']
 with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
