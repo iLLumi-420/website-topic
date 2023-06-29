@@ -4,11 +4,6 @@ import nltk
 from collections import Counter
 from nltk.corpus import stopwords
 
-def clean_text(text):
-    text = text.lower()
-    cleaner_text = text.split('--')
-    text = re.sub(r"[^\w\s]", "", cleaner_text[0])
-    return text
 
 
 def generate_ngrams(text, n):
@@ -45,6 +40,16 @@ with open("data.csv", "r") as file:
         if row["Location"] not in location:
             location.append(row["Location"].lower())
 
+def clean_text(text):
+    text = text.lower()
+    cleaner_text = text.split('--')
+    state_free_text = cleaner_text[0]
+    for state in location:
+        state_free_text = re.sub(r'\b' + state + r'\b', '', state_free_text)    
+    text = re.sub(r"[^\w\s]", "", state_free_text)
+    return text
+
+print(clean_text('new york, california state department of transportation the free official'))
 
 cleaned_notes = [clean_text(note) for note in notes]
 
@@ -75,19 +80,19 @@ for domain, note in zip(domains, cleaned_notes):
         ngram_counts = Counter(all_ngrams)
         most_frequent_ngram = ngram_counts.most_common(1)[0][0]
         if most_frequent_ngram in location:
-            most_frequent_ngram = "Unknown"
+            most_frequent_ngram = ""
 
     else:
-        most_frequent_ngram = "Unknown"
+        most_frequent_ngram = ""
 
-    topic_mapping[domain] = most_frequent_ngram
+    topic_mapping[domain] = [ most_frequent_ngram , note ]
 
 
   
-filed_names = ['Domain', 'Topic']
+filed_names = ['Domain', 'Topic', 'Note']
 with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
     writer.writeheader()
-    for domain, topic in topic_mapping.items():
-        writer.writerow({'Domain': domain, 'Topic': topic})
+    for domain, info in topic_mapping.items():
+        writer.writerow({'Domain': domain, 'Topic': info[0], 'Note': info[1]})
     
