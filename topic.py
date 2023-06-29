@@ -74,8 +74,6 @@ for domain, note in zip(domains, cleaned_notes):
     if all_ngrams:
         ngram_counts = Counter(all_ngrams)
         most_frequent_ngram = ngram_counts.most_common(1)[0][0]
-        if most_frequent_ngram in location:
-            most_frequent_ngram = ""
 
     else:
         most_frequent_ngram = ""
