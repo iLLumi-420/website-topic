@@ -7,7 +7,8 @@ from nltk.corpus import stopwords
 
 def clean_text(text):
     text = text.lower()
-    text = re.sub(r"[^\w\s]", "", text)
+    cleaner_text = text.split('--')
+    text = re.sub(r"[^\w\s]", "", cleaner_text[0])
     return text
 
 
@@ -44,6 +45,9 @@ with open("data.csv", "r") as file:
 
 
 cleaned_notes = [clean_text(note) for note in notes]
+
+test = 'Travel and Tourism Site for Vermont -- Note added 6/6/13 19:19'
+clean_text(test)
 
 most_frequent_unigram = get_most_frequent_ngrams(cleaned_notes, 1)
 most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
@@ -83,3 +87,4 @@ with open('output.csv', 'w') as file:
     writer.writeheader()
     for domain, topic in topic_mapping.items():
         writer.writerow({'Domain': domain, 'Topic': topic})
+    
