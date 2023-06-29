@@ -23,7 +23,7 @@ def get_most_frequent_ngrams(notes, n):
         ngrams = generate_ngrams(note, n)
         all_ngrams.extend(ngrams)
     ngram_count = Counter(all_ngrams)
-    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(200)]
+    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(30)]
     return most_frequent_ngrams
 
 
