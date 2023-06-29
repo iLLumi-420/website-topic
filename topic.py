@@ -57,17 +57,13 @@ most_frequent_unigram = get_most_frequent_ngrams(cleaned_notes, 1)
 most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
 most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
 
-# print(most_frequent_unigram)
-# print(most_frequent_bigram)
-# print(most_frequent_trigram)
 
 topic_mapping = {}
 for domain, note in zip(domains, cleaned_notes):
-    # unigram = generate_ngrams(note, 1)
+ 
     bigram = generate_ngrams(note, 2)
     trigram = generate_ngrams(note, 3)
 
-    # filtered_unigram = filtered_ngrams(unigram, most_frequent_unigram)
     filtered_bigram = filtered_ngrams(bigram, most_frequent_bigram)
     filtered_trigram = filtered_ngrams(trigram, most_frequent_trigram)
 
