@@ -4,7 +4,6 @@ import nltk
 from collections import Counter
 from nltk.corpus import stopwords
 
-
 def clean_text(text):
     text = text.lower()
     cleaner_text = text.split('--')
@@ -29,25 +28,26 @@ def get_most_frequent_ngrams(notes, n):
         ngrams = generate_ngrams(note, n)
         all_ngrams.extend(ngrams)
     ngram_count = Counter(all_ngrams)
-    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(100)]
+    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(200)]
     return most_frequent_ngrams
 
 
 
 domains = []
 notes = []
+location = []
 
 with open("data.csv", "r") as file:
     reader = csv.DictReader(file)
     for row in reader:
         domains.append(row["ï»¿Domain"])
         notes.append(row["Note"])
+        if row["Location"] not in location:
+            location.append(row["Location"].lower())
 
 
 cleaned_notes = [clean_text(note) for note in notes]
 
-test = 'Travel and Tourism Site for Vermont -- Note added 6/6/13 19:19'
-clean_text(test)
 
 most_frequent_unigram = get_most_frequent_ngrams(cleaned_notes, 1)
 most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
@@ -74,6 +74,9 @@ for domain, note in zip(domains, cleaned_notes):
     if all_ngrams:
         ngram_counts = Counter(all_ngrams)
         most_frequent_ngram = ngram_counts.most_common(1)[0][0]
+        if most_frequent_ngram in location:
+            most_frequent_ngram = "Unknown"
+
     else:
         most_frequent_ngram = "Unknown"
 
