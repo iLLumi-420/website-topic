@@ -49,7 +49,6 @@ def clean_text(text):
     text = re.sub(r"[^\w\s]", "", state_free_text)
     return text
 
-print(clean_text('new york, california state department of transportation the free official'))
 
 cleaned_notes = [clean_text(note) for note in notes]
 
