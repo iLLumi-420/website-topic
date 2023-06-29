@@ -23,12 +23,12 @@ def filtered_ngrams(ngrams, most_frequent_ngrams):
     return [ngram for ngram in ngrams if ngram in most_frequent_ngrams]
 
 def get_most_frequent_ngrams(notes, n):
-    all_unigrams = []
+    all_ngrams = []
     for note in notes:
-        unigrams = generate_ngrams(note, n)
-        all_unigrams.extend(unigrams)
-    unigram_count = Counter(all_unigrams)
-    most_frequent_ngrams = [ngram for ngram, count in unigram_count.most_common(100)]
+        ngrams = generate_ngrams(note, n)
+        all_ngrams.extend(ngrams)
+    ngram_count = Counter(all_ngrams)
+    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(100)]
     return most_frequent_ngrams
 
 
@@ -54,17 +54,19 @@ most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
 # print(most_frequent_trigram)
 
 topic_mapping = {}
-
 for domain, note in zip(domains, cleaned_notes):
-    unigram = generate_ngrams(note, 1)
-    bigram = generate_ngrams(note, 3)
+    # unigram = generate_ngrams(note, 1)
+    bigram = generate_ngrams(note, 2)
     trigram = generate_ngrams(note, 3)
 
-    filtered_unigram = filtered_ngrams(unigram, most_frequent_unigram)
+    # filtered_unigram = filtered_ngrams(unigram, most_frequent_unigram)
     filtered_bigram = filtered_ngrams(bigram, most_frequent_bigram)
     filtered_trigram = filtered_ngrams(trigram, most_frequent_trigram)
 
-    all_ngrams = filtered_unigram + filtered_bigram + filtered_trigram
+
+
+    all_ngrams =  filtered_bigram + filtered_trigram 
+
     if all_ngrams:
         ngram_counts = Counter(all_ngrams)
         most_frequent_ngram = ngram_counts.most_common(1)[0][0]
@@ -72,6 +74,7 @@ for domain, note in zip(domains, cleaned_notes):
         most_frequent_ngram = "Unknown"
 
     topic_mapping[domain] = most_frequent_ngram
+
 
   
 filed_names = ['Domain', 'Topic']
