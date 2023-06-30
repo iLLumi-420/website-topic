@@ -17,14 +17,17 @@ def generate_ngrams(text, n):
 def filtered_ngrams(ngrams, most_frequent_ngrams):
     return [ngram for ngram in ngrams if ngram in most_frequent_ngrams]
 
-def get_most_frequent_ngrams(notes, n):
+def get_most_frequent_ngrams(notes):
     all_ngrams = []
     for note in notes:
-        ngrams = generate_ngrams(note, n)
-        all_ngrams.extend(ngrams)
+        bigrams = generate_ngrams(note, 2)
+        trigrams = generate_ngrams(note, 3)
+        all_ngrams.extend(bigrams)
+        all_ngrams.extend(trigrams)
     ngram_count = Counter(all_ngrams)
-    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(30)]
+    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(60)]
     return most_frequent_ngrams
+
 
 
 
@@ -53,9 +56,13 @@ def clean_text(text):
 cleaned_notes = [clean_text(note) for note in notes]
 
 
-most_frequent_unigram = get_most_frequent_ngrams(cleaned_notes, 1)
-most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
-most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
+
+
+
+most_frequent_ngrams = get_most_frequent_ngrams(cleaned_notes)
+print(most_frequent_ngrams)
+# most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
+# most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
 
 
 topic_mapping = {}
@@ -64,8 +71,8 @@ for domain, note in zip(domains, cleaned_notes):
     bigram = generate_ngrams(note, 2)
     trigram = generate_ngrams(note, 3)
 
-    filtered_bigram = filtered_ngrams(bigram, most_frequent_bigram)
-    filtered_trigram = filtered_ngrams(trigram, most_frequent_trigram)
+    filtered_bigram = filtered_ngrams(bigram, most_frequent_ngrams)
+    filtered_trigram = filtered_ngrams(trigram, most_frequent_ngrams)
 
 
 
