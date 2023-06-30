@@ -45,31 +45,28 @@ with open("data.csv", "r") as file:
 
 def clean_text(text):
     text = text.lower()
+    removed_state = ''
     cleaner_text = text.split('--')
-    state_free_text = cleaner_text[0]
+    text = cleaner_text[0]
     for state in location:
-        state_free_text = re.sub(r'\b' + state + r'\b', '', state_free_text)    
-    text = re.sub(r"[^\w\s]", "", state_free_text)
-    return text
+        if state in text:
+            text = text.replace(state, '')
+            removed_state = state
 
 
-cleaned_notes = [clean_text(note) for note in notes]
+    text = re.sub(r"[^\w\s]", "", text)
+    return [text, removed_state]
 
 
-
-
-
-most_frequent_ngrams = get_most_frequent_ngrams(cleaned_notes)
-print(most_frequent_ngrams)
-# most_frequent_bigram = get_most_frequent_ngrams(cleaned_notes, 2)
-# most_frequent_trigram = get_most_frequent_ngrams(cleaned_notes, 3)
+cleaned_notes_with_state = [clean_text(note) for note in notes]
+most_frequent_ngrams = get_most_frequent_ngrams(cleaned_notes_with_state[0])
 
 
 topic_mapping = {}
-for domain, note in zip(domains, cleaned_notes):
+for domain, note in zip(domains, cleaned_notes_with_state):
  
-    bigram = generate_ngrams(note, 2)
-    trigram = generate_ngrams(note, 3)
+    bigram = generate_ngrams(note[0], 2)
+    trigram = generate_ngrams(note[0], 3)
 
     filtered_bigram = filtered_ngrams(bigram, most_frequent_ngrams)
     filtered_trigram = filtered_ngrams(trigram, most_frequent_ngrams)
@@ -85,14 +82,14 @@ for domain, note in zip(domains, cleaned_notes):
     else:
         most_frequent_ngram = ""
 
-    topic_mapping[domain] = [ most_frequent_ngram , note ]
+    topic_mapping[domain] = [ most_frequent_ngram , note[0], note[1] ]
 
 
   
-filed_names = ['Domain', 'Topic', 'Note']
+filed_names = ['Domain', 'Topic', 'Note', 'State']
 with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
     writer.writeheader()
     for domain, info in topic_mapping.items():
-        writer.writerow({'Domain': domain, 'Topic': info[0], 'Note': info[1]})
+        writer.writerow({'Domain': domain, 'Topic': info[0], 'Note': info[1], 'State':info[2]})
     
