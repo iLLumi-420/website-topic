@@ -40,20 +40,29 @@ with open("data.csv", "r") as file:
     for row in reader:
         domains.append(row["ï»¿Domain"])
         notes.append(row["Note"])
-        if row["Location"] not in location:
-            location.append(row["Location"].lower())
+        state = row['Location'].lower()
+        if state not in location:
+            location.append(state)
+
+state_lookup = {}
+for state in location:
+    state_lookup[state.lower()] = state
+
 
 def clean_text(text):
     text = text.lower()
     removed_state = ''
+
     cleaner_text = text.split('--')
     text = cleaner_text[0]
-    for state in location:
-        if state in text:
-            text = text.replace(state, '')
-            removed_state = state
 
-
+    words = text.split()
+    for word in words:
+        if word in state_lookup:
+            text = text.replace(word, '')
+            removed_state = state_lookup[word]
+            break
+    
     text = re.sub(r"[^\w\s]", "", text)
     return [text, removed_state]
 
