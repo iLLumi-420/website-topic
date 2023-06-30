@@ -25,7 +25,7 @@ def get_most_frequent_ngrams(notes):
         all_ngrams.extend(bigrams)
         all_ngrams.extend(trigrams)
     ngram_count = Counter(all_ngrams)
-    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(30)]
+    most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(60)]
     return most_frequent_ngrams
 
 
