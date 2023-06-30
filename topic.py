@@ -86,10 +86,10 @@ for domain, note in zip(domains, cleaned_notes_with_state):
 
 
   
-filed_names = ['Domain', 'Topic', 'Note', 'State']
+filed_names = ['Domain', 'Topic', 'State', 'Note']
 with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
     writer.writeheader()
     for domain, info in topic_mapping.items():
-        writer.writerow({'Domain': domain, 'Topic': info[0], 'Note': info[1], 'State':info[2]})
+        writer.writerow({'Domain': domain, 'Topic': info[0], 'State': info[2], 'Note':info[1]})
     
