@@ -48,24 +48,21 @@ state_lookup = {}
 for state in location:
     state_lookup[state.lower()] = state
 
-
 def clean_text(text):
     text = text.lower()
     removed_state = ''
 
     cleaner_text = text.split('--')
     text = cleaner_text[0]
-
-    words = text.split()
-    for word in words:
-        if word in state_lookup:
-            text = text.replace(word, '')
-            removed_state = state_lookup[word]
-            break
-    
+  
+    for state in state_lookup:
+        if state in text:
+            text = text.replace(state, '')
+            removed_state = state
+       
     text = re.sub(r"[^\w\s]", "", text)
     return [text, removed_state]
-
+    
 
 cleaned_notes_with_state = [clean_text(note) for note in notes]
 
@@ -73,7 +70,6 @@ most_frequent_ngrams = get_most_frequent_ngrams([notes[0] for notes in cleaned_n
 
 topic_mapping = {}
 for domain, note, original_note in zip(domains, cleaned_notes_with_state, notes):
- 
     bigram = generate_ngrams(note[0], 2)
     trigram = generate_ngrams(note[0], 3)
 
@@ -93,12 +89,12 @@ for domain, note, original_note in zip(domains, cleaned_notes_with_state, notes)
 
     topic_mapping[domain] = [ most_frequent_ngram , original_note , note[1] ]
 
-
   
 filed_names = ['Domain', 'Topic', 'State', 'Note']
 with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
     writer.writeheader()
     for domain, info in topic_mapping.items():
+        print(info[2])
         writer.writerow({'Domain': domain, 'Topic': info[0], 'State': info[2], 'Note':info[1]})
     
