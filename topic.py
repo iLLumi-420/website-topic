@@ -2,13 +2,12 @@ import csv
 import re
 import nltk
 from collections import Counter
-from nltk.corpus import stopwords
 
 
 
 def generate_ngrams(text, n):
     words = [
-        word for word in re.split(r"\s+", text.strip()) if word not in set(stopwords.words("english"))
+        word for word in re.split(r"\s+", text.strip()) 
     ]
     temp = zip(*[words[i:] for i in range(0, n)])
     ans = [" ".join(ngram) for ngram in temp]
@@ -20,12 +19,11 @@ def filtered_ngrams(ngrams, most_frequent_ngrams):
 def get_most_frequent_ngrams(notes):
     all_ngrams = []
     for note in notes:
-        bigrams = generate_ngrams(note, 2)
         trigrams = generate_ngrams(note, 3)
-        all_ngrams.extend(bigrams)
         all_ngrams.extend(trigrams)
     ngram_count = Counter(all_ngrams)
     most_frequent_ngrams = [ngram for ngram, count in ngram_count.most_common(60)]
+    print(most_frequent_ngrams)
     return most_frequent_ngrams
 
 
@@ -44,25 +42,28 @@ with open("data.csv", "r") as file:
         if state not in location:
             location.append(state)
 
-state_lookup = {}
-for state in location:
-    state_lookup[state.lower()] = state
-
 def clean_text(text):
     text = text.lower()
     removed_state = ''
 
     cleaner_text = text.split('--')
     text = cleaner_text[0]
-  
-    for state in state_lookup:
-        if state in text:
-            text = text.replace(state, '')
-            removed_state = state
-       
+
+    unigram = generate_ngrams(text, 1)
+    bigram = generate_ngrams(text, 2)
+    trigram = generate_ngrams(text, 3)
+    quadgram = generate_ngrams(text, 4)
+
+    total_ngrams = unigram + bigram + trigram + quadgram
+
+    
+    for word in total_ngrams:
+        if word in location:
+            text = text.replace(word, '')
+            removed_state = word
+          
     text = re.sub(r"[^\w\s]", "", text)
     return [text, removed_state]
-    
 
 cleaned_notes_with_state = [clean_text(note) for note in notes]
 
@@ -70,15 +71,11 @@ most_frequent_ngrams = get_most_frequent_ngrams([notes[0] for notes in cleaned_n
 
 topic_mapping = {}
 for domain, note, original_note in zip(domains, cleaned_notes_with_state, notes):
-    bigram = generate_ngrams(note[0], 2)
     trigram = generate_ngrams(note[0], 3)
 
-    filtered_bigram = filtered_ngrams(bigram, most_frequent_ngrams)
-    filtered_trigram = filtered_ngrams(trigram, most_frequent_ngrams)
 
 
-
-    all_ngrams =  filtered_bigram + filtered_trigram 
+    all_ngrams = filtered_ngrams(trigram, most_frequent_ngrams)
 
     if all_ngrams:
         ngram_counts = Counter(all_ngrams)
@@ -95,6 +92,5 @@ with open('output.csv', 'w') as file:
     writer = csv.DictWriter(file, fieldnames=filed_names)
     writer.writeheader()
     for domain, info in topic_mapping.items():
-        print(info[2])
         writer.writerow({'Domain': domain, 'Topic': info[0], 'State': info[2], 'Note':info[1]})
     
